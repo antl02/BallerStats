@@ -13,12 +13,12 @@ st.set_page_config(
 )
 
 st.title("BallerStats")
-
+st.markdown("---")
 # st.header("What is this?")
 
 add_selectbox = st.sidebar.selectbox(
     "Select a Page",
-    ["Home", "League Stats", "Records", "NBA Market", "Members"]
+    ["Home", "About Us", "League Stats", "Records", "NBA Market", "Members"]
 )
 
 if add_selectbox == "Home":
@@ -26,4 +26,9 @@ if add_selectbox == "Home":
     st.text("Find all of the data you need about your favorite basketball players!")
     st.image("media/NBALogo.jpeg")
 
-
+elif add_selectbox == "About Us":
+    st.subheader("About Us")
+    st.text("All the numbers at your fingertips. With Ballerstats, you will be able to know all kinds of statistics"
+            " when it comes to your favorite team or player.\nGet to learn the history of the game with records. "
+            "Be in the know of the market and who is on the move. Statistics will be updated game-to-game so\nyou"
+            " will always know the performance of every player and team. ")
