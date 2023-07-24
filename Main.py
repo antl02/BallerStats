@@ -73,6 +73,7 @@ elif add_selectbox == "League Stats":
         },
         index= [1, 2, 3, 4, 5]
     )
+    recent_games = recent_games.sort_values(by=['Date'], ascending=False)  # Sorts table by most recent date
     # Displaying the dataframe
     st.dataframe(recent_games)
 
