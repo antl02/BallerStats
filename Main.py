@@ -70,10 +70,10 @@ elif add_selectbox == "League Stats":
                                 game[2]['visitor_team_score'],
                                 game[3]['visitor_team_score'],
                                 game[4]['visitor_team_score']]
-        },
-        index= [1, 2, 3, 4, 5]
+        }
     )
-    recent_games = recent_games.sort_values(by=['Date'], ascending=False)  # Sorts table by most recent date
+    recent_games = recent_games.sort_values(by=['Date'], ascending=False, ignore_index=True)  # Sorts table
+    recent_games.index += 1
     # Displaying the dataframe
     st.dataframe(recent_games)
 
