@@ -1,5 +1,7 @@
+import numpy as np
 import streamlit as st
 import pandas as pd
+import pydeck as pdk
 import requests
 import json
 
@@ -77,3 +79,75 @@ elif add_selectbox == "League Stats":
     # Displaying the dataframe
     st.dataframe(recent_games)
 
+
+view = st.selectbox("Map View", ["Default", "Street", "Satellite"])
+map_data = pd.DataFrame(
+    np.array([[37.768009, -122.387787]]),
+    columns=['lat', 'lon']
+)
+
+if view == "Default":
+    st.pydeck_chart(
+        pdk.Deck(
+            map_style=None,
+            initial_view_state=pdk.ViewState(
+                latitude=37.768009,
+                longitude=-122.387787,
+                zoom=11,
+                pitch=50,
+            ),
+            layers=[
+                pdk.Layer(
+                    "ScatterplotLayer",
+                    data=map_data,
+                    get_position="[lon, lat]",
+                    get_color="[200, 30, 0, 160]",
+                    get_radius=200,
+                ),
+            ],
+        )
+    )
+elif view == "Street":
+    st.pydeck_chart(
+        pdk.Deck(
+            map_style='mapbox://styles/mapbox/streets-v12',
+            initial_view_state=pdk.ViewState(
+                latitude=37.768009,
+                longitude=-122.387787,
+                zoom=11,
+                pitch=50,
+            ),
+            layers=[
+                pdk.Layer(
+                    "ScatterplotLayer",
+                    data=map_data,
+                    get_position="[lon, lat]",
+                    get_color="[200, 30, 0, 160]",
+                    get_radius=200,
+                ),
+            ],
+        )
+    )
+elif view == "Satellite":
+    st.pydeck_chart(
+        pdk.Deck(
+            map_style='mapbox://styles/mapbox/satellite-streets-v12',
+            initial_view_state=pdk.ViewState(
+                latitude=37.768009,
+                longitude=-122.387787,
+                zoom=11,
+                pitch=50,
+            ),
+            layers=[
+                pdk.Layer(
+                    "ScatterplotLayer",
+                    data=map_data,
+                    get_position="[lon, lat]",
+                    get_color="[200, 30, 0, 160]",
+                    get_radius=200,
+                ),
+            ],
+        )
+    )
+
+st.caption("Location of the 2019 NBA Finals: Chase Center")
