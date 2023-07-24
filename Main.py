@@ -32,3 +32,47 @@ elif add_selectbox == "About Us":
             " when it comes to your favorite team or player.\nGet to learn the history of the game with records. "
             "Be in the know of the market and who is on the move. Statistics will be updated game-to-game so\nyou"
             " will always know the performance of every player and team. ")
+
+elif add_selectbox == "League Stats":
+    st. header("Most Recent Games")
+    response = requests.get('https://www.balldontlie.io/api/v1/games').json()
+
+    game = response['data']
+    # Creating a dataframe for the recent games
+    recent_games = pd.DataFrame(
+        {
+            "Date": [game[0]['date'][0:10],
+                     game[1]['date'][0:10],
+                     game[2]['date'][0:10],
+                     game[3]['date'][0:10],
+                     game[4]['date'][0:10]],
+
+            "Home Team": [game[0]['home_team']['name'],
+                          game[1]['home_team']['name'],
+                          game[2]['home_team']['name'],
+                          game[3]['home_team']['name'],
+                          game[4]['home_team']['name']],
+
+            "Home Team Score": [game[0]['home_team_score'],
+                                game[1]['home_team_score'],
+                                game[2]['home_team_score'],
+                                game[3]['home_team_score'],
+                                game[4]['home_team_score']],
+
+            "Away Team": [game[0]['visitor_team']['name'],
+                          game[1]['visitor_team']['name'],
+                          game[2]['visitor_team']['name'],
+                          game[3]['visitor_team']['name'],
+                          game[4]['visitor_team']['name']],
+
+            "Away Team Score": [game[0]['visitor_team_score'],
+                                game[1]['visitor_team_score'],
+                                game[2]['visitor_team_score'],
+                                game[3]['visitor_team_score'],
+                                game[4]['visitor_team_score']]
+        },
+        index= [1, 2, 3, 4, 5]
+    )
+    # Displaying the dataframe
+    st.dataframe(recent_games)
+
