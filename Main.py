@@ -1,5 +1,7 @@
+import numpy as np
 import streamlit as st
 import pandas as pd
+import pydeck as pdk
 import requests
 import json
 # Test
@@ -70,9 +72,82 @@ elif add_selectbox == "League Stats":
                                 game[2]['visitor_team_score'],
                                 game[3]['visitor_team_score'],
                                 game[4]['visitor_team_score']]
-        },
-        index= [1, 2, 3, 4, 5]
+        }
     )
+    recent_games = recent_games.sort_values(by=['Date'], ascending=False, ignore_index=True)  # Sorts table
+    recent_games.index += 1
     # Displaying the dataframe
     st.dataframe(recent_games)
 
+
+view = st.selectbox("Map View", ["Default", "Street", "Satellite"])
+map_data = pd.DataFrame(
+    np.array([[37.768009, -122.387787]]),
+    columns=['lat', 'lon']
+)
+
+if view == "Default":
+    st.pydeck_chart(
+        pdk.Deck(
+            map_style=None,
+            initial_view_state=pdk.ViewState(
+                latitude=37.768009,
+                longitude=-122.387787,
+                zoom=11,
+                pitch=50,
+            ),
+            layers=[
+                pdk.Layer(
+                    "ScatterplotLayer",
+                    data=map_data,
+                    get_position="[lon, lat]",
+                    get_color="[200, 30, 0, 160]",
+                    get_radius=200,
+                ),
+            ],
+        )
+    )
+elif view == "Street":
+    st.pydeck_chart(
+        pdk.Deck(
+            map_style='mapbox://styles/mapbox/streets-v12',
+            initial_view_state=pdk.ViewState(
+                latitude=37.768009,
+                longitude=-122.387787,
+                zoom=11,
+                pitch=50,
+            ),
+            layers=[
+                pdk.Layer(
+                    "ScatterplotLayer",
+                    data=map_data,
+                    get_position="[lon, lat]",
+                    get_color="[200, 30, 0, 160]",
+                    get_radius=200,
+                ),
+            ],
+        )
+    )
+elif view == "Satellite":
+    st.pydeck_chart(
+        pdk.Deck(
+            map_style='mapbox://styles/mapbox/satellite-streets-v12',
+            initial_view_state=pdk.ViewState(
+                latitude=37.768009,
+                longitude=-122.387787,
+                zoom=11,
+                pitch=50,
+            ),
+            layers=[
+                pdk.Layer(
+                    "ScatterplotLayer",
+                    data=map_data,
+                    get_position="[lon, lat]",
+                    get_color="[200, 30, 0, 160]",
+                    get_radius=200,
+                ),
+            ],
+        )
+    )
+
+st.caption("Location of the 2019 NBA Finals: Chase Center")
