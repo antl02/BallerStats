@@ -80,19 +80,38 @@ elif add_selectbox == "League Stats":
     st.dataframe(recent_games)
 
 
-view = st.selectbox("Map View", ["Default", "Street", "Satellite"])
-map_data = pd.DataFrame(
-    np.array([[37.768009, -122.387787]]),
-    columns=['lat', 'lon']
-)
+col1, col2, col3, col4 = st.columns(4)
+
+loc_lat = 37.750328
+loc_lon = -122.203300
+with col1:
+    st.caption("San Francisco, California")
+    oracle_loc = st.button("Oracle Arena")
+    if oracle_loc:
+        loc_lat = 37.750328
+        loc_lon = -122.203300
+
+with col2:
+    st.caption("Toronto, Canada")
+    scotia_loc = st.button("Scotiabank Arena")
+    if scotia_loc:
+        loc_lat = 43.643475
+        loc_lon = -79.379379
+
+with col3:
+    view = st.selectbox("Map View", ["Default", "Street", "Satellite"])
+    map_data = pd.DataFrame(
+        np.array([[37.750328, -122.203300], [43.643475, -79.379379]]),
+        columns=['lat', 'lon']
+    )
 
 if view == "Default":
     st.pydeck_chart(
         pdk.Deck(
             map_style=None,
             initial_view_state=pdk.ViewState(
-                latitude=37.768009,
-                longitude=-122.387787,
+                latitude=loc_lat,
+                longitude=loc_lon,
                 zoom=11,
                 pitch=50,
             ),
@@ -112,8 +131,8 @@ elif view == "Street":
         pdk.Deck(
             map_style='mapbox://styles/mapbox/streets-v12',
             initial_view_state=pdk.ViewState(
-                latitude=37.768009,
-                longitude=-122.387787,
+                latitude=loc_lat,
+                longitude=loc_lon,
                 zoom=11,
                 pitch=50,
             ),
@@ -133,8 +152,8 @@ elif view == "Satellite":
         pdk.Deck(
             map_style='mapbox://styles/mapbox/satellite-streets-v12',
             initial_view_state=pdk.ViewState(
-                latitude=37.768009,
-                longitude=-122.387787,
+                latitude=loc_lat,
+                longitude=loc_lon,
                 zoom=11,
                 pitch=50,
             ),
@@ -150,4 +169,5 @@ elif view == "Satellite":
         )
     )
 
-st.caption("Location of the 2019 NBA Finals: Chase Center")
+
+st.caption("Locations of the 2019 NBA Finals")
