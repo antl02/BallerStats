@@ -4,11 +4,12 @@ import pandas as pd
 import pydeck as pdk
 import requests
 import json
+
 # Test
 st.set_page_config(
-    page_title = "BallerStats",
-    layout = "wide",
-    menu_items = {
+    page_title="BallerStats",
+    layout="wide",
+    menu_items={
         'Get Help': 'https://docs.streamlit.io/',
         'About': '# Welcome to BallerStats. Here you can find all the stats you need!'
     }
@@ -36,7 +37,8 @@ elif add_selectbox == "About Us":
             " will always know the performance of every player and team. ")
 
 elif add_selectbox == "League Stats":
-    st. header("Most Recent Games")
+    st.header("League Statistics")
+    st.subheader("Most Recent Games")
     response = requests.get('https://www.balldontlie.io/api/v1/games').json()
 
     game = response['data']
@@ -79,6 +81,61 @@ elif add_selectbox == "League Stats":
     # Displaying the dataframe
     st.dataframe(recent_games)
 
+    st.subheader("Current Player Statistics")
+    st.info("Example: Anthony Davis")
+    player_name = st.text_input("Player Name")
+    url = "https://www.balldontlie.io/api/v1/players/"
+    parameters = {'page': 0, 'per_page': 100, 'search': player_name}
+    try:
+        response = requests.get(url, params=parameters).json()
+        names = []
+        teams = []
+        # conferences = []
+        # divisions = []
+        positions = []
+
+        games_played = []
+        avg_mins = []
+        avg_fgm = []
+
+        if len(response['data']) > 0 and player_name:
+            for player in response['data']:
+                names.append(player['first_name'] + " " + player['last_name'])
+                teams.append(player['team']['name'])
+                # conferences.append(player['team']['conference'])
+                # divisions.append(player['team']['division'])
+                positions.append(player['position'])
+
+                url = "https://www.balldontlie.io/api/v1/season_averages?player_ids[]=" + str(player['id'])
+                response = requests.get(url).json()
+                if len(response['data']) > 0:
+                    playerStats = response['data'][0]
+                    games_played.append(playerStats['games_played'])
+                    avg_mins.append(playerStats['min'])
+                    avg_fgm.append(playerStats['fgm'])
+                else:
+                    games_played.append("0")
+                    avg_mins.append("0")
+                    avg_fgm.append("0")
+
+            players = pd.DataFrame(
+                {
+                    "Player": names,
+                    "Team": teams,
+                    # "Conference": conferences,
+                    # "Division": divisions,
+                    "Position": positions,
+                    "Games Played": games_played,
+                    "Avg Mins": avg_mins,
+                    "Avg FGM": avg_fgm
+                }
+            )
+            players.index += 1
+            st.dataframe(players)
+        elif player_name:
+            st.warning("No player was found. Make sure the input format was correct.")
+    except Exception:
+        st.error("Failed to get the info requested. Refresh and try again.")
 
 col1, col2, col3, col4 = st.columns(4)
 
@@ -168,6 +225,5 @@ elif view == "Satellite":
             ],
         )
     )
-
 
 st.caption("Locations of the 2019 NBA Finals")
