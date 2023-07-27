@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import pydeck as pdk
 import requests
+import matplotlib.pyplot as plt
 import json
 
 # Test 3 for Video
@@ -21,12 +22,12 @@ st.markdown("---")
 
 add_selectbox = st.sidebar.selectbox(
     "Select a Page",
-    ["Home", "About Us", "League Stats", "Records", "NBA Market", "Members"]
+    ["Home", "About Us", "League Stats", "Misc Info"]
 )
 
 if add_selectbox == "Home":
     st.header("Welcome to Our Site")
-    st.text("Find all of the data you need about your favorite basketball players!")
+    st.text("Find all of the data you need about the NBA teams and players of the 2019 season!")
     st.image("media/NBALogo.jpeg")
 
 elif add_selectbox == "About Us":
@@ -137,93 +138,144 @@ elif add_selectbox == "League Stats":
     except Exception:
         st.error("Failed to get the info requested. Refresh and try again.")
 
-col1, col2, col3, col4 = st.columns(4)
+elif add_selectbox == 'Misc Info':
+    st.header("Miscellaneous Info")
+    st.subheader("Does Height Matter?")
+    st.text("There is often a debate between the difference height can make in the sport of basketball.\n"
+            "To provide you with some evidence for supporting your answer to that question, here's the "
+            "heights of the top 5 players.")
+    # Top Players Heights Chart
+    top_players = []
+    url = "https://www.balldontlie.io/api/v1/players/"
+    try:
+        response = requests.get(url, params={'search': 'Lebron James'}).json()
+        top_players.append(response)
 
-loc_lat = 37.750328
-loc_lon = -122.203300
-with col1:
-    st.caption("San Francisco, California")
-    oracle_loc = st.button("Oracle Arena")
-    if oracle_loc:
-        loc_lat = 37.750328
-        loc_lon = -122.203300
+        response = requests.get(url, params={'search': 'Kevin Durant'}).json()
+        top_players.append(response)
 
-with col2:
-    st.caption("Toronto, Canada")
-    scotia_loc = st.button("Scotiabank Arena")
-    if scotia_loc:
-        loc_lat = 43.643475
-        loc_lon = -79.379379
+        response = requests.get(url, params={'search': 'Anthony Davis'}).json()
+        top_players.append(response)
 
-with col3:
-    view = st.selectbox("Map View", ["Default", "Street", "Satellite"])
-    map_data = pd.DataFrame(
-        np.array([[37.750328, -122.203300], [43.643475, -79.379379]]),
-        columns=['lat', 'lon']
-    )
+        response = requests.get(url, params={'search': 'Stephen Curry'}).json()
+        top_players.append(response)
 
-if view == "Default":
-    st.pydeck_chart(
-        pdk.Deck(
-            map_style=None,
-            initial_view_state=pdk.ViewState(
-                latitude=loc_lat,
-                longitude=loc_lon,
-                zoom=11,
-                pitch=50,
-            ),
-            layers=[
-                pdk.Layer(
-                    "ScatterplotLayer",
-                    data=map_data,
-                    get_position="[lon, lat]",
-                    get_color="[200, 30, 0, 160]",
-                    get_radius=200,
-                ),
-            ],
+        response = requests.get(url, params={'search': 'James Harden'}).json()
+        top_players.append(response)
+    except Exception as e:
+        st.error("Error: Information could not be reached.")
+
+    heights = [(top_players[0]['data'][0]['height_feet'] * 12) + top_players[0]['data'][0]['height_inches'],
+               (top_players[1]['data'][0]['height_feet'] * 12) + top_players[1]['data'][0]['height_inches'],
+               (top_players[2]['data'][0]['height_feet'] * 12) + top_players[2]['data'][0]['height_inches'],
+               (top_players[3]['data'][0]['height_feet'] * 12) + top_players[3]['data'][0]['height_inches'],
+               (top_players[4]['data'][0]['height_feet'] * 12) + top_players[4]['data'][0]['height_inches']]
+
+    categories = ['Lebron James', 'Kevin Durant', 'Anthony Davis', 'Stephen Curry', 'James Harden']
+    values = [heights[0], heights[1], heights[2], heights[3], heights[4]]
+
+    fig, ax = plt.subplots(figsize=(2, 2))
+    ax.bar(categories, values, width=0.2)
+
+    plt.xlabel('Players')
+    ax.set_ylim(70, 90)
+    plt.ylabel('Height (in)')
+    plt.tick_params(axis='x', labelsize=3)
+    plt.tick_params(axis='y', labelsize=5)
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.pyplot(fig)
+    # NBA Finals section
+    st.subheader("NBA Finals Locations")
+    st.text("The annual NBA Finals are hosted at the home-town arenas of the final contenders.")
+    col1, col2, col3, col4 = st.columns(4)
+
+    loc_lat = 37.750328
+    loc_lon = -122.203300
+    with col1:
+        st.caption("San Francisco, California")
+        oracle_loc = st.button("Oracle Arena")
+        if oracle_loc:
+            loc_lat = 37.750328
+            loc_lon = -122.203300
+
+    with col2:
+        st.caption("Toronto, Canada")
+        scotia_loc = st.button("Scotiabank Arena")
+        if scotia_loc:
+            loc_lat = 43.643475
+            loc_lon = -79.379379
+
+    with col3:
+        view = st.selectbox("Map View", ["Default", "Street", "Satellite"])
+        map_data = pd.DataFrame(
+            np.array([[37.750328, -122.203300], [43.643475, -79.379379]]),
+            columns=['lat', 'lon']
         )
-    )
-elif view == "Street":
-    st.pydeck_chart(
-        pdk.Deck(
-            map_style='mapbox://styles/mapbox/streets-v12',
-            initial_view_state=pdk.ViewState(
-                latitude=loc_lat,
-                longitude=loc_lon,
-                zoom=11,
-                pitch=50,
-            ),
-            layers=[
-                pdk.Layer(
-                    "ScatterplotLayer",
-                    data=map_data,
-                    get_position="[lon, lat]",
-                    get_color="[200, 30, 0, 160]",
-                    get_radius=200,
-                ),
-            ],
-        )
-    )
-elif view == "Satellite":
-    st.pydeck_chart(
-        pdk.Deck(
-            map_style='mapbox://styles/mapbox/satellite-streets-v12',
-            initial_view_state=pdk.ViewState(
-                latitude=loc_lat,
-                longitude=loc_lon,
-                zoom=11,
-                pitch=50,
-            ),
-            layers=[
-                pdk.Layer(
-                    "ScatterplotLayer",
-                    data=map_data,
-                    get_position="[lon, lat]",
-                    get_color="[200, 30, 0, 160]",
-                    get_radius=200,
-                ),
-            ],
-        )
-    )
 
-st.caption("Locations of the 2019 NBA Finals")
+    if view == "Default":
+        st.pydeck_chart(
+            pdk.Deck(
+                map_style=None,
+                initial_view_state=pdk.ViewState(
+                    latitude=loc_lat,
+                    longitude=loc_lon,
+                    zoom=11,
+                    pitch=50,
+                ),
+                layers=[
+                    pdk.Layer(
+                        "ScatterplotLayer",
+                        data=map_data,
+                        get_position="[lon, lat]",
+                        get_color="[200, 30, 0, 160]",
+                        get_radius=200,
+                    ),
+                ],
+            )
+        )
+    elif view == "Street":
+        st.pydeck_chart(
+            pdk.Deck(
+                map_style='mapbox://styles/mapbox/streets-v12',
+                initial_view_state=pdk.ViewState(
+                    latitude=loc_lat,
+                    longitude=loc_lon,
+                    zoom=11,
+                    pitch=50,
+                ),
+                layers=[
+                    pdk.Layer(
+                        "ScatterplotLayer",
+                        data=map_data,
+                        get_position="[lon, lat]",
+                        get_color="[200, 30, 0, 160]",
+                        get_radius=200,
+                    ),
+                ],
+            )
+        )
+    elif view == "Satellite":
+        st.pydeck_chart(
+            pdk.Deck(
+                map_style='mapbox://styles/mapbox/satellite-streets-v12',
+                initial_view_state=pdk.ViewState(
+                    latitude=loc_lat,
+                    longitude=loc_lon,
+                    zoom=11,
+                    pitch=50,
+                ),
+                layers=[
+                    pdk.Layer(
+                        "ScatterplotLayer",
+                        data=map_data,
+                        get_position="[lon, lat]",
+                        get_color="[200, 30, 0, 160]",
+                        get_radius=200,
+                    ),
+                ],
+            )
+        )
+
+    st.caption("Locations of the 2019 NBA Finals")
