@@ -27,7 +27,7 @@ add_selectbox = st.sidebar.selectbox(
 
 if add_selectbox == "Home":
     st.header("Welcome to Our Site")
-    st.text("Find all of the data you need about the NBA teams and players of the 2019 season!")
+    st.text("Find all of the data you need about the NBA and its players up to the 2019 season!")
     st.image("media/NBALogo.jpeg")
 
 elif add_selectbox == "About Us":
@@ -82,10 +82,11 @@ elif add_selectbox == "League Stats":
     # Displaying the dataframe
     st.dataframe(recent_games)
 
+    st.subheader("Most Points Per Game")
     col1, col2, col3 = st.columns(3)
     # Adeel's Chart
-    with col1:
-        st.subheader("Most Points Per Game")
+    with col2:
+
         players = {
             "James Harden": 192,
             "Paul George": 172,
@@ -114,17 +115,20 @@ elif add_selectbox == "League Stats":
         ppg_data.sort(key=lambda x: x[1], reverse=True)
 
         # Define custom colors for the bars
-        bar_colors = ['red', 'blue', 'green', 'purple', 'gold']
+        bar_colors = ['red', 'blue', 'green', 'purple', 'gold', 'orange']
+
+        # Allow the user to select a color using the select_slider
+        selected_color = st.radio('Select Bar Color', options=bar_colors)
 
         plt.figure(figsize=(10, 6))
-        # Use the color parameter to specify the custom colors for the bars
-        plt.bar([x[0] for x in ppg_data[:5]], [x[1] for x in ppg_data[:5]], color=bar_colors)
+        # Use the selected_color variable to specify the color for the bars
+        plt.bar([x[0] for x in ppg_data[:5]], [x[1] for x in ppg_data[:5]], color=selected_color)
         plt.xlabel("Player")
         plt.ylabel("Points Per Game (PPG) Average")
         plt.title(f"Top 5 Players (PPG) - {season_year} Season")
         plt.xticks(rotation=45)
-
-        st.pyplot(plt)
+        with col1:
+            st.pyplot(plt)
 
     st.subheader("Current Player Statistics")
     st.info("Look for a player! Format Examples: Anthony Davis  |  Lebron  | Curry")
