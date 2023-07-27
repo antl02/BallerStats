@@ -22,7 +22,7 @@ st.markdown("---")
 
 add_selectbox = st.sidebar.selectbox(
     "Select a Page",
-    ["Home", "About Us", "League Stats", "Misc Info"]
+    ["Home", "About Us", "League Stats", "Misc Info", "PPG Leaders"]
 )
 
 if add_selectbox == "Home":
@@ -279,3 +279,45 @@ elif add_selectbox == 'Misc Info':
         )
 
     st.caption("Locations of the 2019 NBA Finals")
+
+elif add_selectbox == 'PPG Leaders':
+    st.header("Most Points Per Game")
+    players = {
+        "James Harden": 192,
+        "Paul George": 172,
+        "Giannis Antetokounmpo": 15,
+        "Joel Embiid": 145,
+        "Stephen Curry": 115
+    }
+
+    season_year = 2018
+    ppg_data = []
+
+    base_url = "https://www.balldontlie.io/api/v1/season_averages"
+
+    for player_name, player_id in players.items():
+        # Make the API call to get player's season averages
+        response = requests.get(f"{base_url}?season={season_year}&player_ids[]={player_id}")
+        data = response.json()
+
+        if "data" in data:
+            season_averages = data["data"][0]
+            ppg_average = season_averages["pts"]
+            ppg_data.append((player_name, ppg_average))
+        else:
+            st.write(f"Data not available for {player_name} for the specified season.")
+
+    ppg_data.sort(key=lambda x: x[1], reverse=True)
+
+    # Define custom colors for the bars
+    bar_colors = ['red', 'blue', 'green', 'purple', 'gold']
+
+    plt.figure(figsize=(10, 6))
+    # Use the color parameter to specify the custom colors for the bars
+    plt.bar([x[0] for x in ppg_data[:5]], [x[1] for x in ppg_data[:5]], color=bar_colors)
+    plt.xlabel("Player")
+    plt.ylabel("Points Per Game (PPG) Average")
+    plt.title(f"Top 5 Players (PPG) - {season_year} Season")
+    plt.xticks(rotation=45)
+
+    st.pyplot(plt)
