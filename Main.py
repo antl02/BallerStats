@@ -24,7 +24,7 @@ add_selectbox = st.sidebar.selectbox(
     "Select a Page",
     ["Home", "About Us", "League Stats", "Misc Info"]
 )
-
+response = requests.get('https://www.balldontlie.io/api/v1/games').json()
 if add_selectbox == "Home":
     st.header("Welcome to Our Site")
     st.text("Find all of the data you need about the NBA and its players up to the 2019 season!")
@@ -40,7 +40,7 @@ elif add_selectbox == "About Us":
 elif add_selectbox == "League Stats":
     st.header("League Statistics")
     st.subheader("Most Recent Games")
-    response = requests.get('https://www.balldontlie.io/api/v1/games').json()
+
 
     game = response['data']
     # Creating a dataframe for the recent games
@@ -102,8 +102,12 @@ elif add_selectbox == "League Stats":
 
         for player_name, player_id in players.items():
             # Make the API call to get player's season averages
-            response = requests.get(f"{base_url}?season={season_year}&player_ids[]={player_id}")
-            data = response.json()
+            try :
+                response = requests.get(f"{base_url}?season={season_year}&player_ids[]={player_id}")
+                data = response.json()
+            except Exception:
+                st.error("Failed to get the info requested. Refresh and try again.")
+
 
             if "data" in data:
                 season_averages = data["data"][0]
@@ -131,7 +135,12 @@ elif add_selectbox == "League Stats":
             st.pyplot(plt)
 
     st.subheader("Current Player Statistics")
-    st.info("Look for a player! Format Examples: Anthony Davis  |  Lebron  | Curry")
+    st.info("Look for a player and choose what to show! Format Examples: Anthony Davis  |  Lebron  | Curry")
+
+    check_gp = st.checkbox("Games Played")
+    check_mins = st.checkbox("Average Minutes (Avg Mins)")
+    check_fgm = st.checkbox("Average Field Goals Made (Avg FGM)")
+
     player_name = st.text_input("Player Name")
     url = "https://www.balldontlie.io/api/v1/players/"
     parameters = {'page': 0, 'per_page': 100, 'search': player_name}
@@ -167,18 +176,96 @@ elif add_selectbox == "League Stats":
                     avg_mins.append("0")
                     avg_fgm.append("0")
 
-            players = pd.DataFrame(
-                {
-                    "Player": names,
-                    "Team": teams,
-                    # "Conference": conferences,
-                    # "Division": divisions,
-                    "Position": positions,
-                    "Games Played": games_played,
-                    "Avg Mins": avg_mins,
-                    "Avg FGM": avg_fgm
-                }
-            )
+            if check_gp and check_mins and check_fgm:
+                players = pd.DataFrame(
+                    {
+                        "Player": names,
+                        "Team": teams,
+                        # "Conference": conferences,
+                        # "Division": divisions,
+                        "Position": positions,
+                        "Games Played": games_played,
+                        "Avg Mins": avg_mins,
+                        "Avg FGM": avg_fgm
+                    }
+                )
+            elif check_gp and check_mins:
+                players = pd.DataFrame(
+                    {
+                        "Player": names,
+                        "Team": teams,
+                        # "Conference": conferences,
+                        # "Division": divisions,
+                        "Position": positions,
+                        "Games Played": games_played,
+                        "Avg Mins": avg_mins
+                    }
+                )
+            elif check_mins and check_fgm:
+                players = pd.DataFrame({
+                        "Player": names,
+                        "Team": teams,
+                        # "Conference": conferences,
+                        # "Division": divisions,
+                        "Position": positions,
+                        "Avg Mins": avg_mins,
+                        "Avg FGM": avg_fgm
+                    }
+                )
+            elif check_gp and check_fgm:
+                players = pd.DataFrame({
+                        "Player": names,
+                        "Team": teams,
+                        # "Conference": conferences,
+                        # "Division": divisions,
+                        "Position": positions,
+                        "Games Played": games_played,
+                        "Avg FGM": avg_fgm
+                    }
+                )
+            elif check_gp:
+                players = pd.DataFrame(
+                    {
+                        "Player": names,
+                        "Team": teams,
+                        # "Conference": conferences,
+                        # "Division": divisions,
+                        "Position": positions,
+                        "Games Played": games_played
+                    }
+                )
+            elif check_mins:
+                players = pd.DataFrame(
+                    {
+                        "Player": names,
+                        "Team": teams,
+                        # "Conference": conferences,
+                        # "Division": divisions,
+                        "Position": positions,
+                        "Avg Mins": avg_mins
+                    }
+                )
+            elif check_fgm:
+                players = pd.DataFrame(
+                    {
+                        "Player": names,
+                        "Team": teams,
+                        # "Conference": conferences,
+                        # "Division": divisions,
+                        "Position": positions,
+                        "Avg FGM": avg_fgm
+                    }
+                )
+            else:
+                players = pd.DataFrame(
+                    {
+                        "Player": names,
+                        "Team": teams,
+                        # "Conference": conferences,
+                        # "Division": divisions,
+                        "Position": positions
+                    }
+                )
             players.index += 1
             st.dataframe(players)
         elif player_name:
