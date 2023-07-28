@@ -31,6 +31,7 @@ if add_selectbox == "Home":
     st.header("Welcome to Our Site")
     st.text("Find all of the data you need about the NBA and its players up to the 2019 season!")
     st.image("media/NBALogo.jpeg")
+    st.caption('© 2023 NBA Media Ventures, LLC. All rights reserved.')
 
 elif add_selectbox == "About Us":
     st.subheader("About Us")
@@ -38,6 +39,21 @@ elif add_selectbox == "About Us":
             " when it comes to your favorite team or player.\nGet to learn the history of the game with records. "
             "Be in the know of the market and who is on the move. Statistics will be updated game-to-game so\nyou"
             " will always know the performance of every player and team. ")
+    st.subheader("Why Statistics?")
+    st.text("Providing pieces of history is our main goal. We would like to give people the opportunity to prove"
+            " their arguments on the sport and its past.\nIt is important to make those priceless moments in history"
+            " accessible so that they aren't just forgotten numbers. Through comparison, the new\nupcoming "
+            "professionals can be compared to the legends of history.")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.image('media/MBB-WBB_BallHoop.jpg')
+        st.caption('Creator: Ben Solomon | Credit: NCAA Photos via Getty Images | Copyright: Ben Solomon')
+    with col2:
+        st.image('media/bballstock.jpg')
+        st.image('media/bballstock2.jpg')
+        st.caption('')
+
 
 elif add_selectbox == "League Stats":
     st.header("League Statistics")
