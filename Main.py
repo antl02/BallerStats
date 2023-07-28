@@ -1,3 +1,5 @@
+from datetime import date
+
 import numpy as np
 import streamlit as st
 import pandas as pd
@@ -39,11 +41,11 @@ elif add_selectbox == "About Us":
 
 elif add_selectbox == "League Stats":
     st.header("League Statistics")
-    st.subheader("Most Recent Games")
-
 
     game = response['data']
     # Creating a dataframe for the recent games
+    col1, col2, col3 = st.columns(3)
+    st.subheader("Most Recent Games")
     recent_games = pd.DataFrame(
         {
             "Date": [game[0]['date'][0:10],
@@ -81,6 +83,39 @@ elif add_selectbox == "League Stats":
     recent_games.index += 1
     # Displaying the dataframe
     st.dataframe(recent_games)
+
+    # Adeel: NBA Games by Date
+    st.subheader("NBA Games by Date")
+    max_date_str = "2019-06-13"  # Maximum date available in the date input widget
+    max_date = date.fromisoformat(max_date_str)
+    selected_date = st.date_input("Select a date", value=None)
+
+    if selected_date and selected_date <= max_date:
+        formatted_date = selected_date.strftime("%Y-%m-%d")
+
+        base_url = "https://www.balldontlie.io/api/v1/games"
+        response = requests.get(f"{base_url}?dates[]={formatted_date}")
+        data = response.json()
+
+        if "data" in data:
+            games = data["data"]
+            # Filter out games with dates after 6/13/2019
+            filtered_games = [game for game in games if game["date"] <= "2019-06-13T00:00:00.000Z"]
+
+            if filtered_games:
+                #st.subheader(f"Games on {formatted_date}:")
+                for game in filtered_games:
+                    home_team = game["home_team"]["full_name"]
+                    visitor_team = game["visitor_team"]["full_name"]
+                    home_score = game["home_team_score"]
+                    visitor_score = game["visitor_team_score"]
+                    st.write(f"{home_team} {home_score} - {visitor_team} {visitor_score}")
+            else:
+                st.write(f"No games found on or before {formatted_date}")
+        else:
+            st.write(f"Error fetching data for {formatted_date}")
+    elif selected_date and selected_date > max_date:
+        st.warning("Please select a date on or before 06/13/2019")
 
     st.subheader("Most Points Per Game")
     col1, col2, col3 = st.columns(3)
@@ -131,8 +166,8 @@ elif add_selectbox == "League Stats":
         plt.ylabel("Points Per Game (PPG) Average")
         plt.title(f"Top 5 Players (PPG) - {season_year} Season")
         plt.xticks(rotation=45)
-        with col1:
-            st.pyplot(plt)
+    with col1:
+        st.pyplot(plt)
 
     st.subheader("Current Player Statistics")
     st.info("Look for a player and choose what to show! Format Examples: Anthony Davis  |  Lebron  | Curry")
@@ -321,6 +356,39 @@ elif add_selectbox == 'Misc Info':
     col1, col2 = st.columns(2)
     with col1:
         st.pyplot(fig)
+
+    st.subheader("Our Secret NBA Favorites 2018 - 2019 Season Averages")
+    players = {
+        "LeBron James": 237,
+        "James Harden": 192,
+        "Paul George": 172,
+        "Giannis Antetokounmpo": 15,
+        "Joel Embiid": 145,
+        "Stephen Curry": 115
+    }
+
+    player_name = st.select_slider("Select a player:", list(players.keys()), )
+    st.markdown("---")
+
+    player_id = players[player_name]
+    season_year = 2020  # You can set a default season year here or add another input to let the user choose the year.
+
+    base_url = "https://www.balldontlie.io/api/v1/season_averages"
+    response = requests.get(f"{base_url}?season={season_year}&player_ids[]={player_id}")
+    data = response.json()
+
+    if "data" in data:
+        player_data = data["data"][0]
+        st.write(f"**{player_name}**")
+
+        st.write(f"Games Played: {player_data['games_played']}")
+        st.write(f"Points Per Game (PPG): {player_data['pts']}")
+        st.write(f"Assists Per Game (APG): {player_data['ast']}")
+        st.write(f"Rebounds Per Game (RPG): {player_data['reb']}")
+        # Add more stats as needed
+    else:
+        st.write(f"No data available for {player_name} for the specified season.")
+
     # NBA Finals section
     st.subheader("NBA Finals Locations")
     st.text("The annual NBA Finals are hosted at the home-town arenas of the final contenders.")
