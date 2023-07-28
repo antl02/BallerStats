@@ -8,7 +8,6 @@ import requests
 import matplotlib.pyplot as plt
 import json
 
-# Test 3 for Video
 st.set_page_config(
     page_title="BallerStats",
     layout="wide",
@@ -100,7 +99,7 @@ elif add_selectbox == "League Stats":
     # Displaying the dataframe
     st.dataframe(recent_games)
 
-    # Adeel: NBA Games by Date
+    # NBA Games by Date
     st.subheader("NBA Games by Date")
     max_date_str = "2019-06-13"  # Maximum date available in the date input widget
     max_date = date.fromisoformat(max_date_str)
@@ -135,7 +134,7 @@ elif add_selectbox == "League Stats":
 
     st.subheader("Most Points Per Game")
     col1, col2, col3 = st.columns(3)
-    # Adeel's Chart
+
     with col2:
 
         players = {
@@ -401,7 +400,6 @@ elif add_selectbox == 'Misc Info':
         st.write(f"Points Per Game (PPG): {player_data['pts']}")
         st.write(f"Assists Per Game (APG): {player_data['ast']}")
         st.write(f"Rebounds Per Game (RPG): {player_data['reb']}")
-        # Add more stats as needed
     else:
         st.write(f"No data available for {player_name} for the specified season.")
 
