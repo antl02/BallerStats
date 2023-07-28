@@ -10,6 +10,7 @@ import json
 
 st.set_page_config(
     page_title="BallerStats",
+    page_icon="media/bstatslogo.png",
     layout="wide",
     menu_items={
         'Get Help': 'https://docs.streamlit.io/',
@@ -17,7 +18,11 @@ st.set_page_config(
     }
 )
 
-st.title("BallerStats")
+col1, col2, col3, col4, col5 = st.columns(5)
+with col5:
+    st.image("media/bstatslogo.png")
+with col1:
+    st.title("BallerStats")
 st.markdown("---")
 # st.header("What is this?")
 
@@ -29,6 +34,7 @@ response = requests.get('https://www.balldontlie.io/api/v1/games').json()
 if add_selectbox == "Home":
     st.header("Welcome to Our Site")
     st.text("Find all of the data you need about the NBA and its players up to the 2019 season!")
+
     st.image("media/NBALogo.jpeg")
     st.caption('© 2023 NBA Media Ventures, LLC. All rights reserved.')
 
